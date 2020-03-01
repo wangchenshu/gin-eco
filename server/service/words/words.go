@@ -40,7 +40,6 @@ var myBot = mylinebot.Init()
 func PostHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		events, err := myBot.ParseRequest(context.Request)
-		fmt.Println(events)
 		if err != nil {
 			if err == linebot.ErrInvalidSignature {
 				context.JSON(http.StatusBadRequest, nil)
@@ -64,6 +63,7 @@ func PostHandler() gin.HandlerFunc {
 						INSPIRATIONAL.String(),
 					)
 					repMsg := defaultMsg
+
 					if message.Text == GOOD_WORDS.String() {
 						repMsg = wordsRandWords()
 					} else if message.Text == WISDOM_ADAGE.String() {
@@ -117,28 +117,40 @@ func PostHandler() gin.HandlerFunc {
 
 func wordsRandWords() string {
 	words := model.EcoWords{}
-	db.Db.Raw("SELECT * FROM eco_words where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WORDS_LIMIT).Scan(&words)
+	db.Db.Raw(
+		"SELECT * FROM eco_words where LENGTH(words) < ? ORDER BY RAND() LIMIT 1",
+		WORDS_LIMIT,
+	).Scan(&words)
 
 	return words.Words
 }
 
 func wisdomAdagesRandWords() string {
 	words := model.EcoWisdomAdages{}
-	db.Db.Raw("SELECT * FROM eco_wisdom_adages where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WORDS_LIMIT).Scan(&words)
+	db.Db.Raw(
+		"SELECT * FROM eco_wisdom_adages where LENGTH(words) < ? ORDER BY RAND() LIMIT 1",
+		WORDS_LIMIT,
+	).Scan(&words)
 
 	return words.Words
 }
 
 func inspirationalsRandWords() string {
 	words := model.EcoInspirationals{}
-	db.Db.Raw("SELECT * FROM eco_inspirationals where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WORDS_LIMIT).Scan(&words)
+	db.Db.Raw(
+		"SELECT * FROM eco_inspirationals where LENGTH(words) < ? ORDER BY RAND() LIMIT 1",
+		WORDS_LIMIT,
+	).Scan(&words)
 
 	return words.Words
 }
 
 func phorismsRandWords() string {
 	words := model.EcoPhorisms{}
-	db.Db.Raw("SELECT * FROM eco_phorisms where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WORDS_LIMIT).Scan(&words)
+	db.Db.Raw(
+		"SELECT * FROM eco_phorisms where LENGTH(words) < ? ORDER BY RAND() LIMIT 1",
+		WORDS_LIMIT,
+	).Scan(&words)
 
 	return words.Words
 }
@@ -155,9 +167,12 @@ func myQuickReply() linebot.SendingMessage {
 	quickReplyButtons := []*linebot.QuickReplyButton{}
 
 	for k, v := range labels {
-		quickReplyButtons = append(quickReplyButtons, linebot.NewQuickReplyButton(
-			imageURLs[k], linebot.NewMessageAction(v, v),
-		))
+		quickReplyButtons = append(
+			quickReplyButtons,
+			linebot.NewQuickReplyButton(
+				imageURLs[k], linebot.NewMessageAction(v, v),
+			),
+		)
 	}
 	quickReply := linebot.NewTextMessage(content).
 		WithQuickReplies(linebot.NewQuickReplyItems(quickReplyButtons...))
