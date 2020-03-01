@@ -25,7 +25,8 @@ func Engine() *gin.Engine {
 	r.GET("/api/eco/phorisms", words.GetEcoPhorisms())
 	r.GET("/api/eco/phorisms/rand", words.GetEcoPhorismsRand())
 
-	r.POST("/callback", words.GetWords())
+	// Line bot callback
+	r.POST("/callback", words.PostHandler())
 
 	return r
 }

@@ -10,34 +10,34 @@ import (
 	"net/http"
 
 	"gin-eco/server/db"
+	"gin-eco/server/enum"
 	"gin-eco/server/model"
 	"gin-eco/server/service/mylinebot"
 )
 
 const (
-	// WordStr -
-	WordStr = "好語"
-	// WisdomAdageStr -
-	WisdomAdageStr = "自在語"
-	// PhorismStr -
-	PhorismStr = "靜思語"
-	// InspirationalStr -
-	InspirationalStr = "勵志語"
+	GOOD_WORDS    enum.EcoEnum = enum.GOOD_WORDS
+	WISDOM_ADAGE  enum.EcoEnum = enum.WISDOM_ADAGE
+	PHORISM       enum.EcoEnum = enum.PHORISM
+	INSPIRATIONAL enum.EcoEnum = enum.INSPIRATIONAL
+	INPUT_WORDS   enum.EcoEnum = enum.INPUT_WORDS
 )
 
-// TemplateTitle - template title
-const TemplateTitle = "禪念 Bot Go 2.0"
-
-// DefaultImg - default img
-const DefaultImg = "https://firebasestorage.googleapis.com/v0/b/walter-bot-a2142.appspot.com/o/line-bot%2Fimage%2Fother%2Fgirl_img%2F27367-5nYPUB.jpg?alt=media&token=9ec89929-5b2d-478c-b8da-c37f61f338a0"
-
-// WordsLimit -
-const WordsLimit = 200
+const (
+	TITLE       = enum.TITLE
+	DEFAULT_IMG = enum.DEFAULT_IMG
+	WORDS_LIMIT = enum.WORDS_LIMIT
+	QUICK_MENU  = enum.QUICK_MENU
+	IMG_URL_1   = enum.IMG_URL_ZEN
+	IMG_URL_2   = enum.IMG_URL_ZEN
+	IMG_URL_3   = enum.IMG_URL_ZEN
+	IMG_URL_4   = enum.IMG_URL_ZEN
+)
 
 var myBot = mylinebot.Init()
 
-// GetWords - get words
-func GetWords() gin.HandlerFunc {
+// PostHandler - get words
+func PostHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		events, err := myBot.ParseRequest(context.Request)
 		fmt.Println(events)
@@ -45,7 +45,7 @@ func GetWords() gin.HandlerFunc {
 			if err == linebot.ErrInvalidSignature {
 				context.JSON(http.StatusBadRequest, nil)
 			} else {
-				context.JSON(500, nil)
+				context.JSON(http.StatusInternalServerError, nil)
 			}
 			return
 		}
@@ -55,25 +55,32 @@ func GetWords() gin.HandlerFunc {
 			case linebot.EventTypeMessage:
 				switch message := event.Message.(type) {
 				case *linebot.TextMessage:
-					defaultMsg := fmt.Sprintf("請輸入%s，%s 或是 %s", WordStr, WisdomAdageStr, PhorismStr)
+					defaultMsg := fmt.Sprintf(
+						"%s: %s, %s, %s, %s",
+						INPUT_WORDS.String(),
+						GOOD_WORDS.String(),
+						WISDOM_ADAGE.String(),
+						PHORISM.String(),
+						INSPIRATIONAL.String(),
+					)
 					repMsg := defaultMsg
-					if message.Text == WordStr {
+					if message.Text == GOOD_WORDS.String() {
 						repMsg = wordsRandWords()
-					} else if message.Text == WisdomAdageStr {
+					} else if message.Text == WISDOM_ADAGE.String() {
 						repMsg = wisdomAdagesRandWords()
-					} else if message.Text == PhorismStr {
+					} else if message.Text == PHORISM.String() {
 						repMsg = phorismsRandWords()
-					} else if message.Text == InspirationalStr {
+					} else if message.Text == INSPIRATIONAL.String() {
 						repMsg = inspirationalsRandWords()
 					}
 
-					imageURL := DefaultImg
+					imageURL := DEFAULT_IMG
 					template := linebot.NewButtonsTemplate(
-						imageURL, TemplateTitle, defaultMsg,
-						linebot.NewMessageAction(WordStr, WordStr),
-						linebot.NewMessageAction(WisdomAdageStr, WisdomAdageStr),
-						linebot.NewMessageAction(PhorismStr, PhorismStr),
-						linebot.NewMessageAction(InspirationalStr, InspirationalStr),
+						imageURL, TITLE, defaultMsg,
+						linebot.NewMessageAction(GOOD_WORDS.String(), GOOD_WORDS.String()),
+						linebot.NewMessageAction(WISDOM_ADAGE.String(), WISDOM_ADAGE.String()),
+						linebot.NewMessageAction(PHORISM.String(), PHORISM.String()),
+						linebot.NewMessageAction(INSPIRATIONAL.String(), INSPIRATIONAL.String()),
 					)
 					if _, err := myBot.ReplyMessage(
 						event.ReplyToken,
@@ -110,41 +117,41 @@ func GetWords() gin.HandlerFunc {
 
 func wordsRandWords() string {
 	words := model.EcoWords{}
-	db.Db.Raw("SELECT * FROM eco_words where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WordsLimit).Scan(&words)
+	db.Db.Raw("SELECT * FROM eco_words where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WORDS_LIMIT).Scan(&words)
 
 	return words.Words
 }
 
 func wisdomAdagesRandWords() string {
 	words := model.EcoWisdomAdages{}
-	db.Db.Raw("SELECT * FROM eco_wisdom_adages where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WordsLimit).Scan(&words)
+	db.Db.Raw("SELECT * FROM eco_wisdom_adages where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WORDS_LIMIT).Scan(&words)
 
 	return words.Words
 }
 
 func inspirationalsRandWords() string {
 	words := model.EcoInspirationals{}
-	db.Db.Raw("SELECT * FROM eco_inspirationals where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WordsLimit).Scan(&words)
+	db.Db.Raw("SELECT * FROM eco_inspirationals where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WORDS_LIMIT).Scan(&words)
 
 	return words.Words
 }
 
 func phorismsRandWords() string {
 	words := model.EcoPhorisms{}
-	db.Db.Raw("SELECT * FROM eco_phorisms where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WordsLimit).Scan(&words)
+	db.Db.Raw("SELECT * FROM eco_phorisms where LENGTH(words) < ? ORDER BY RAND() LIMIT 1", WORDS_LIMIT).Scan(&words)
 
 	return words.Words
 }
 
 func myQuickReply() linebot.SendingMessage {
-	content := fmt.Sprintf("快速選單")
-	imageURLs := []string{
-		"https://firebasestorage.googleapis.com/v0/b/walter-bot-a2142.appspot.com/o/line-bot%2Fimage%2Fother%2Fzen%2F3.png?alt=media&token=44770a07-a661-40dc-960e-45da1699e4f2",
-		"https://firebasestorage.googleapis.com/v0/b/walter-bot-a2142.appspot.com/o/line-bot%2Fimage%2Fother%2Fzen%2F3.png?alt=media&token=44770a07-a661-40dc-960e-45da1699e4f2",
-		"https://firebasestorage.googleapis.com/v0/b/walter-bot-a2142.appspot.com/o/line-bot%2Fimage%2Fother%2Fzen%2F3.png?alt=media&token=44770a07-a661-40dc-960e-45da1699e4f2",
-		"https://firebasestorage.googleapis.com/v0/b/walter-bot-a2142.appspot.com/o/line-bot%2Fimage%2Fother%2Fzen%2F3.png?alt=media&token=44770a07-a661-40dc-960e-45da1699e4f2",
+	content := QUICK_MENU
+	imageURLs := []string{IMG_URL_1, IMG_URL_2, IMG_URL_3, IMG_URL_4}
+	labels := []string{
+		GOOD_WORDS.String(),
+		WISDOM_ADAGE.String(),
+		PHORISM.String(),
+		INSPIRATIONAL.String(),
 	}
-	labels := []string{WordStr, WisdomAdageStr, PhorismStr, InspirationalStr}
 	quickReplyButtons := []*linebot.QuickReplyButton{}
 
 	for k, v := range labels {
