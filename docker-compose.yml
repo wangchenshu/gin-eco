@@ -1,0 +1,47 @@
+version: "3"
+services:
+    # db:
+    #   # image: mysql:8
+    #   container_name: db
+    #   build: ./docker/mysql
+    #   restart: always
+    #   environment:
+    #     - MYSQL_ROOT_PASSWORD=${DATABASE_PASSWORD}
+    #     - MYSQL_DATABASE=${DATABASE_DB}
+    #   command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_general_ci']
+    #   ports:
+    #     - "${DATABASE_PORT}:${DATABASE_PORT}"
+    #   volumes:
+    #     - "db-data:/var/lib/mysql"
+    #   networks:
+    #     - local-net
+  
+    gin-eco:
+        container_name: gin-eco
+        # image: gin/eco
+        build: .
+        restart: always
+        # depends_on:
+        #   - db
+        # links:
+        #   - db
+        environment:
+          - SERVER_PORT=${SERVER_PORT}
+          - DATABASE_HOST=${DATABASE_HOST}
+          - DATABASE_PORT=${DATABASE_PORT}
+          - DATABASE_USER=${DATABASE_USER}
+          - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+          - DATABASE_DB=${DATABASE_DB}
+          - CHANNEL_TOKEN=${CHANNEL_TOKEN}
+          - CHANNEL_SECRET=${CHANNEL_SECRET}
+        ports:
+          - "${SERVER_PORT}:${SERVER_PORT}"
+        network_mode: host
+        # networks:
+        #   - local-net
+
+# networks:
+#   local-net:
+#       driver: bridge
+# volumes:
+#   db-data:
