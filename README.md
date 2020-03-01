@@ -22,6 +22,8 @@
 * [禪念粉絲頁](https://www.facebook.com/%E7%A6%AA%E5%BF%B5-1062013710643908/)
 * [FB Messenger](http://m.me/1062013710643908)
 
+### 支持 Docker 運行
+
 ### LINE
 * 加入好友 ID: @748eeivc
 * [加入好友傳送門](https://line.me/R/ti/p/%40748eeivc)

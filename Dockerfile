@@ -1,6 +1,6 @@
 FROM golang:latest
 
-WORKDIR /web/group-buy
+WORKDIR /web/eco
 COPY . .
 #RUN go build
-CMD ["./gin-group-buy"]
+CMD ["./gin-eco"]
