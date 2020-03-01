@@ -1,0 +1,13 @@
+[Unit]
+Description=My Gin Eco Server
+After=syslog.target
+
+[Service]
+User=root
+Restart=always
+RestartSec=3
+ExecStart=<YOUR_PATH>/start-go-service.sh
+
+[Install]
+WantedBy=multi-user.target
+

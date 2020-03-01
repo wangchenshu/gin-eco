@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd <YOUR_APP_PATH>
+
+export CHANNEL_TOKEN=<YOUR_CHANNEL_TOKEN>
+export CHANNEL_SECRET=<YOUR_CHANNEL_SECRET>
+
+./gin-eco
+
+exit 0
+
